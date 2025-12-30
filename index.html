@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「康文署場地」查詢系統</title>
+    <!-- Awesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <style>
+        .element-hidden {
+            display: none !important;
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #1f2937;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: #111827;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        .header .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #3b82f6;
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .data-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        /* Data Section Styles */
+        .data-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .data-header h2 {
+            color: #111827;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .data-header .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .accordion-container {
+            margin-top: 20px;
+        }
+
+        .venue-group {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .venue-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .venue-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .venue-header.active {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+        }
+
+        .venue-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .venue-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .venue-content {
+            padding: 20px;
+            background: white;
+        }
+
+        .district-group {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .district-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .district-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .district-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .district-content {
+            padding: 15px;
+            background: white;
+        }
+
+        .venue-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .venue-item {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .venue-item:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        .venue-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .venue-row {
+            display: flex;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .venue-label {
+            font-weight: 600;
+            color: #374151;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .venue-value {
+            flex: 1;
+            color: #6b7280;
+            word-break: break-word;
+        }
+
+        .venue-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge-category {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-district {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-contact {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-hours {
+            background: #f3e8ff;
+            color: #5b21b6;
+        }
+
+        .venue-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .notification.error {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .notification.info {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+                background: #1e3a8a;
+            }
+
+            .container {
+                gap: 16px;
+            }
+
+            .header {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .main-content {
+                flex-direction: column;
+            }
+
+            .data-section {
+                max-height: 400px;
+                padding: 15px;
+            }
+
+            .data-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .venue-info {
+                grid-template-columns: 1fr;
+            }
+
+            .venue-row {
+                flex-direction: column;
+                margin-bottom: 12px;
+            }
+
+            .venue-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .venue-header,
+            .district-header {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Desktop Enhancements */
+        @media (min-width: 1200px) {
+            .data-section {
+                max-height: 65vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>「康文署場地」查詢系統</h1>
+            <p class="subtitle">康樂及文化事務署場地資訊查詢系統 | 支援場地分類及區域篩選</p>
+        </header>
+        <section class="form-section">
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="loadVenueData()">
+                    <i class="fas fa-sync-alt"></i>
+                    載入場地資料
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearData()">
+                    <i class="fas fa-redo"></i>
+                    清除資料
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearCache()">
+                    <i class="fas fa-trash"></i>
+                    清除緩存
+                </button>
+            </div>
+        </section>
+        <main class="main-content">
+            <section class="data-section">
+                <div class="data-header">
+                    <h2>康文署場地列表</h2>
+                    <p class="subtitle">點擊分類或區域查看更多場地詳細資訊</p>
+                </div>
+                <div class="data-stats">
+                    <div class="stat-item">
+                        <span id="total-venues" class="stat-value">0</span>
+                        <span class="stat-label">場地總數</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="total-categories" class="stat-value">0</span>
+                        <span class="stat-label">場地分類</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="total-districts" class="stat-value">0</span>
+                        <span class="stat-label">區域數量</span>
+                    </div>
+                </div>
+                <div class="accordion-container" id="accordion-container">
+                    <div class="no-data">
+                        <i class="fas fa-landmark"></i>
+                        <p>請點擊「載入場地資料」按鈕開始查詢</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <p>康文署場地查詢系統 | 資料來源: 康樂及文化事務署 | 最後更新時間: <span id="last-updated"></span></p>
+        </footer>
+    </div>
+    <script>
+        // 數據源URL
+        const VENUE_DATA_URL = 'https://www.lcsd.gov.hk/datagovhk/venue/venue.json';
+        // CORS Proxy (如果需要)
+        const PROXY_URL = `https://cors-anywhere.herokuapp.com`;
+        // 全局變量
+        let venueData = [];
+        let categoriesSet = new Set();
+        let districtsSet = new Set();
+        let db = null;
+
+        // 初始化應用
+        document.addEventListener('DOMContentLoaded', function () {
+            initIndexedDB();
+            updateLastUpdatedTime();
+        });
+
+        // 初始化 IndexedDB
+        function initIndexedDB() {
+            const request = indexedDB.open('VenueDatabase', 1);
+
+            request.onerror = function (event) {
+                console.error('IndexedDB 初始化失敗:', event.target.error);
+            };
+
+            request.onsuccess = function (event) {
+                db = event.target.result;
+                console.log('IndexedDB 初始化成功');
+                checkCacheStatus();
+            };
+
+            request.onupgradeneeded = function (event) {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains('venues')) {
+                    const store = db.createObjectStore('venues', { keyPath: 'id' });
+                    store.createIndex('updated', 'updated', { unique: false });
+                }
+            };
+        }
+
+        // 檢查緩存狀態
+        async function checkCacheStatus() {
+            if (!db) return;
+
+            try {
+                const transaction = db.transaction(['venues'], 'readonly');
+                const store = transaction.objectStore('venues');
+                const countRequest = store.count();
+
+                countRequest.onsuccess = function (event) {
+                    const cachedCount = event.target.result;
+                    if (cachedCount > 0) {
+                        showNotification(`發現 ${cachedCount} 筆緩存場地資料，可點擊「載入場地資料」載入最新資料`, 'info');
+                    }
+                };
+            } catch (error) {
+                console.error('檢查緩存狀態時出錯:', error);
+            }
+        }
+
+        // 更新最後更新時間
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleString('zh-HK', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById('last-updated').textContent = formattedTime;
+        }
+
+        // 清除資料
+        function clearData() {
+            venueData = [];
+            categoriesSet.clear();
+            districtsSet.clear();
+            updateStatistics();
+            const container = document.getElementById('accordion-container');
+            container.innerHTML = '<div class="no-data"><i class="fas fa-landmark"></i><p>請點擊「載入場地資料」按鈕開始查詢</p></div>';
+            showNotification('已清除顯示資料', 'info');
+        }
+
+        // 清除緩存
+        function clearCache() {
+            if (!db) {
+                showNotification('資料庫未初始化', 'error');
+                return;
+            }
+
+            const transaction = db.transaction(['venues'], 'readwrite');
+            const store = transaction.objectStore('venues');
+            const clearRequest = store.clear();
+
+            clearRequest.onsuccess = function () {
+                showNotification('已清除所有緩存資料', 'success');
+            };
+
+            clearRequest.onerror = function (event) {
+                showNotification('清除緩存時出錯: ' + event.target.error, 'error');
+            };
+        }
+
+        // 從 IndexedDB 獲取緩存資料
+        async function getCachedData() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    resolve(null);
+                    return;
+                }
+
+                const transaction = db.transaction(['venues'], 'readonly');
+                const store = transaction.objectStore('venues');
+                const request = store.getAll();
+
+                request.onsuccess = function (event) {
+                    const cachedData = event.target.result;
+                    if (cachedData && cachedData.length > 0) {
+                        // 轉換回原始格式（移除id和updated字段）
+                        const venues = cachedData.map(item => {
+                            const { id, updated, ...venue } = item;
+                            return venue;
+                        });
+                        resolve(venues);
+                    } else {
+                        resolve(null);
+                    }
+                };
+
+                request.onerror = function (event) {
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // 保存資料到 IndexedDB
+        async function saveToCache(venues) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    resolve(false);
+                    return;
+                }
+
+                const transaction = db.transaction(['venues'], 'readwrite');
+                const store = transaction.objectStore('venues');
+
+                // 清除舊資料
+                store.clear();
+
+                // 添加新資料
+                venues.forEach((venue, index) => {
+                    const item = {
+                        id: index,
+                        ...venue,
+                        updated: new Date().toISOString()
+                    };
+                    store.add(item);
+                });
+
+                transaction.oncomplete = function () {
+                    resolve(true);
+                };
+
+                transaction.onerror = function (event) {
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // 載入場地資料
+        async function loadVenueData() {
+            // 顯示加載狀態
+            const container = document.getElementById('accordion-container');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在載入場地資料...</p>
+                </div>
+            `;
+
+            try {
+                let data = null;
+                let fromCache = false;
+
+                // 首先嘗試從緩存獲取
+                try {
+                    const cachedData = await getCachedData();
+                    if (cachedData && cachedData.length > 0) {
+                        data = cachedData;
+                        fromCache = true;
+                        showNotification(`從緩存載入 ${data.length} 筆場地資料`, 'info');
+                    }
+                } catch (cacheError) {
+                    console.warn('讀取緩存時出錯:', cacheError);
+                }
+
+                // 如果沒有緩存，則從網絡獲取
+                if (!data) {
+                    const response = await fetch(`${PROXY_URL}/${VENUE_DATA_URL}`);
+
+                    if (!response.ok) {
+                        alert(`請先啟用 PROXY： ${PROXY_URL}`);
+                        window.open(PROXY_URL, "_blank");
+                        return;
+                    }
+
+                    data = await response.json();
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        container.innerHTML = `
+                            <div class="no-data">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>未找到場地資料</p>
+                            </div>
+                        `;
+                        showNotification('未找到場地資料', 'error');
+                        return;
+                    }
+
+                    // 保存到緩存
+                    try {
+                        await saveToCache(data);
+                        showNotification(`成功載入 ${data.length} 筆場地資料並已緩存`, 'success');
+                    } catch (saveError) {
+                        console.warn('保存到緩存時出錯:', saveError);
+                        showNotification(`成功載入 ${data.length} 筆場地資料（緩存失敗）`, 'success');
+                    }
+                }
+
+                // 處理場地資料
+                venueData = data;
+                processVenueData(data);
+
+                // 更新介面
+                updateVenueList(data);
+                updateStatistics();
+                updateLastUpdatedTime();
+
+            } catch (error) {
+                console.error('載入場地資料時出錯:', error);
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>載入場地資料時出錯</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message}</p>
+                    </div>
+                `;
+                showNotification('載入場地資料時出錯，請稍後再試', 'error');
+            }
+        }
+
+        // 處理場地資料
+        function processVenueData(data) {
+            categoriesSet.clear();
+            districtsSet.clear();
+
+            data.forEach(venue => {
+                if (venue.Category_cn) {
+                    categoriesSet.add(venue.Category_cn);
+                }
+                if (venue.District_cn) {
+                    districtsSet.add(venue.District_cn);
+                }
+            });
+        }
+
+        // 更新統計數據
+        function updateStatistics() {
+            document.getElementById('total-venues').textContent = venueData.length;
+            document.getElementById('total-categories').textContent = categoriesSet.size;
+            document.getElementById('total-districts').textContent = districtsSet.size;
+        }
+
+        // 更新場地列表（按 Category_cn -> District_cn -> Name_cn 分組）
+        function updateVenueList(data) {
+            const container = document.getElementById('accordion-container');
+
+            if (!Array.isArray(data) || data.length === 0) {
+                container.innerHTML = '<div class="no-data"><i class="fas fa-landmark"></i><p>沒有場地資料</p></div>';
+                return;
+            }
+
+            // 按 Category_cn 分組
+            const groupedByCategory = {};
+            data.forEach(venue => {
+                const category = venue.Category_cn || '未分類';
+                const district = venue.District_cn || '未指定區域';
+
+                if (!groupedByCategory[category]) {
+                    groupedByCategory[category] = {};
+                }
+
+                if (!groupedByCategory[category][district]) {
+                    groupedByCategory[category][district] = [];
+                }
+
+                groupedByCategory[category][district].push(venue);
+            });
+
+            let accordionHTML = '';
+            let categoryIndex = 0;
+
+            // 遍歷每個分類
+            for (const [category, districts] of Object.entries(groupedByCategory)) {
+                // 計算該分類下的場地總數
+                let categoryVenueCount = 0;
+                for (const venueList of Object.values(districts)) {
+                    categoryVenueCount += venueList.length;
+                }
+
+                accordionHTML += `
+                    <div class="venue-group" data-category="${category}">
+                        <div class="venue-header" onclick="toggleGroup('category-${categoryIndex}')">
+                            <div>
+                                <i class="fas fa-folder" style="margin-right: 8px;"></i>
+                                <span>${category} (${categoryVenueCount} 個場地)</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="category-${categoryIndex}" class="venue-content" style="display: none;">
+                `;
+
+                let districtIndex = 0;
+                // 遍歷該分類下的每個區域
+                for (const [district, venues] of Object.entries(districts)) {
+                    accordionHTML += `
+                        <div class="district-group">
+                            <div class="district-header" onclick="toggleGroup('district-${categoryIndex}-${districtIndex}')">
+                                <div>
+                                    <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i>
+                                    <span>${district} (${venues.length} 個場地)</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div id="district-${categoryIndex}-${districtIndex}" class="district-content" style="display: none;">
+                                <div class="venue-list">
+                    `;
+
+                    // 顯示該區域下的所有場地
+                    venues.forEach((venue, venueIndex) => {
+                        accordionHTML += `
+                            <div class="venue-item">
+                                <div class="venue-meta" style="margin-bottom: 15px;display: inline-grid;">
+                                    <span class="venue-badge badge-category">
+                                        <i class="fas fa-tag" style="margin-right: 4px;"></i>
+                                        ${venue.Category_cn || '未分類'}
+                                    </span>
+                                    <span class="venue-badge badge-district">
+                                        <i class="fas fa-map-pin" style="margin-right: 4px;"></i>
+                                        ${venue.District_cn || '未指定區域'}
+                                    </span>
+                                </div>
+                                <div class="venue-info">
+                                    <div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">場地名稱:</div>
+                                            <div class="venue-value">
+                                                <strong>${venue.Name_cn || '未知'}</strong><br/>
+                                                <small>${venue.Name_en || ''}</small>
+                                            </div>
+                                        </div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">地址:</div>
+                                            <div class="venue-value">
+                                                ${venue.Address_cn || '未知'}<br/>
+                                                <small>${venue.Address_en || ''}</small>
+                                            </div>
+                                        </div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">電話:</div>
+                                            <div class="venue-value">${venue.Phone || '未提供'}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">傳真:</div>
+                                            <div class="venue-value">${venue.Fax || '未提供'}</div>
+                                        </div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">電郵:</div>
+                                            <div class="venue-value">${venue.Email || '未提供'}</div>
+                                        </div>
+                                        <div class="venue-row">
+                                            <div class="venue-label">網址:</div>
+                                            <div class="venue-value">
+                                                ${venue.URL_cn ? `<a href="${venue.URL_cn}" target="_blank">中文網站</a>` : '未提供'}
+                                                ${venue.URL_en && venue.URL_cn ? ' / ' : ''}
+                                                ${venue.URL_en ? `<a href="${venue.URL_en}" target="_blank">English Website</a>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="venue-row">
+                                    <div class="venue-label">開放時間:</div>
+                                    <div class="venue-value">
+                                        ${venue.OpeningHour_cn || '未提供'}<br/>
+                                        <small>${venue.OpeningHour_en || ''}</small>
+                                    </div>
+                                </div>
+                                ${venue.PublicHolidayOpeningHour_cn ? `
+                                <div class="venue-row">
+                                    <div class="venue-label">公眾假期:</div>
+                                    <div class="venue-value">
+                                        ${venue.PublicHolidayOpeningHour_cn}<br/>
+                                        <small>${venue.PublicHolidayOpeningHour_en || ''}</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${venue.ClosedOn_cn ? `
+                                <div class="venue-row">
+                                    <div class="venue-label">休息日:</div>
+                                    <div class="venue-value">
+                                        ${venue.ClosedOn_cn}<br/>
+                                        <small>${venue.ClosedOn_en || ''}</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                ${venue.Remark_cn ? `
+                                <div class="venue-row">
+                                    <div class="venue-label">備註:</div>
+                                    <div class="venue-value">
+                                        ${venue.Remark_cn}<br/>
+                                        <small>${venue.Remark_en || ''}</small>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+
+                    accordionHTML += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    districtIndex++;
+                }
+
+                accordionHTML += `
+                        </div>
+                    </div>
+                `;
+                categoryIndex++;
+            }
+
+            container.innerHTML = accordionHTML;
+        }
+
+        // 切換分組顯示/隱藏
+        function toggleGroup(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            const header = element.previousElementSibling;
+            const icon = header.querySelector('.fa-chevron-down, .fa-chevron-up');
+
+            if (element.style.display === 'none') {
+                element.style.display = 'block';
+                header.classList.add('active');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-up';
+                }
+            } else {
+                element.style.display = 'none';
+                header.classList.remove('active');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            }
+        }
+
+        // 顯示通知
+        function showNotification(message, type = 'info') {
+            // 移除現有通知
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // 創建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // 添加到文檔
+            document.body.appendChild(notification);
+
+            // 3秒後移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 初始化教程
+        if (!localStorage.getItem('venueTutorialShown')) {
+            setTimeout(() => {
+                alert("歡迎使用康文署場地查詢系統！\n\n• 點擊「載入場地資料」按鈕載入資料\n• 系統會自動緩存資料以提高加載速度\n• 點擊分類標題可展開/收起該分類下的場地\n• 點擊區域標題可展開/收起該區域下的場地\n• 使用「清除資料」移除顯示的資料\n• 使用「清除緩存」移除所有緩存資料");
+                localStorage.setItem('venueTutorialShown', 'true');
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
